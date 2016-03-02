@@ -20,7 +20,9 @@ app.use(swagger.init(app, {
     swaggerUI: './public/swagger/',
     apis: ['./api.js', './api.yml']
 }));
+app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
+
 /* Database */
 var mongoose = require('mongoose'); //Import MongoDb 'driver'.Install: npm install mongoose
 mongoose.connect('mongodb://localhost/users');
@@ -47,18 +49,28 @@ var User = new Schema({
         unique: true
     },
     created: {
-        type: Date
+        type: Date,
+        default: Date.now
     }
 });
 
 var User = mongoose.model('User', User);
+
+/*Local persistence*/
+if (typeof localStorage === "undefined" || localStorage === null) {
+  var LocalStorage = require('node-localstorage').LocalStorage;
+  localStorage = new LocalStorage('./scratch');
+}
 
 /* RESTful API */
 
 //Get All
 app.get('/', function(req, res) {
     User.find({}, function(error, data) {
-        res.json(data);
+        localStorage.getItem("users") === null ? localStorage.setItem('users', data) : localItems = localStorage.getItem('users');
+        console.log(data);
+        console.log(localItems);
+        localItems ? res.send(localItems) : res.json(data);
     });
 });
 
@@ -73,18 +85,19 @@ app.get('/:id', function(req, res) {
 
 //Create New
 app.post('/new', function(req, res) {
+	console.log(req.body);
     var user_data = {
-        forename: req.body.name,
-        surname: req.body.uri,
-        email: req.body.email,
-        created: Date.now
+        forename: req.body.forename,
+        surname: req.body.surname,
+        email: req.body.email
     };
     res.send(user_data);
 
     var user = new User(user_data);
     // The collection schema has save()
+    console.log(user);
     user.save(function(error, data) {
-        error ? res.json(error) : res.send("Added New Record");
+        error ? res.json(error) : res.send(data);
     });
 });
 
