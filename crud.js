@@ -12,91 +12,102 @@ This enables proper RESTful application design.
 However the form/request will require a hidden input _method that can be put or delete*/
 app.use(express.methodOverride());
 app.use(swagger.init(app, {
-	apiVersion: '1.0',
-	swaggerVersion: '1.0',
-	swaggerURL: '/swagger',
-	basePath: 'http://localhost:3000',
-	swaggerJSON: '/api-docs.json',
-	swaggerUI: './public/swagger/',
-	apis: ['./api.js', './api.yml']
+    apiVersion: '1.0',
+    swaggerVersion: '1.0',
+    swaggerURL: '/swagger',
+    basePath: 'http://localhost:3000',
+    swaggerJSON: '/api-docs.json',
+    swaggerUI: './public/swagger/',
+    apis: ['./api.js', './api.yml']
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 /* Database */
 var mongoose = require('mongoose'); //Import MongoDb 'driver'.Install: npm install mongoose
-mongoose.connect('mongodb://localhost/bookmarks');
+mongoose.connect('mongodb://localhost/users');
 var Schema = mongoose.Schema;
 var ObjectId = Schema.ObjectId;
 
 /* Models */
-var Bookmark = new Schema({
-        name : { type: String, required: true, trim: true, unique: true } 
-      , uri : { type: String, required: true, trim: true }
-      , description : { type: String, trim: true }
-    });
+var User = new Schema({
+    forename: {
+        type: String,
+        required: true,
+        trim: true,
+        unique: true
+    },
+    surname: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    email: {
+        type: String,
+        required: true,
+        trim: true,
+        unique: true
+    },
+    created: {
+        type: Date
+    }
+});
 
-var Bookmark = mongoose.model('Bookmark', Bookmark);
+var User = mongoose.model('User', User);
 
-/* RESTful API */ 
+/* RESTful API */
 
 //Get All
-app.get('/', function(req,res){
-        Bookmark.find({}, function(error, data){
-            res.json(data);
-        });
+app.get('/', function(req, res) {
+    User.find({}, function(error, data) {
+        res.json(data);
+    });
 });
 
 //Get by ID
 app.get('/:id', function(req, res) {
- Bookmark.find({_id: req.params.id}, function(error, data) {
-            res.json(data);
- });
+    User.find({
+        _id: req.params.id
+    }, function(error, data) {
+        res.json(data);
+    });
 });
 
 //Create New
-app.post('/new', function(req,res) {
-	console.log(req);
- var bookmark_data = {
-   name: req.body.name
- , uri: req.body.uri
- , description: req.body.description
- };
- res.send(bookmark_data);
- console.log(bookmark_data);
- var bookmark = new Bookmark(bookmark_data);
- bookmark.save(function(error, data){
-            if(error){
-                res.json(error);
-            }else{
-             console.log("Added New Record");
-  res.send();
-     }
-        });
- 
+app.post('/new', function(req, res) {
+    var user_data = {
+        forename: req.body.name,
+        surname: req.body.uri,
+        email: req.body.email,
+        created: Date.now
+    };
+    res.send(user_data);
+
+    var user = new User(user_data);
+    // The collection schema has save()
+    user.save(function(error, data) {
+        error ? res.json(error) : res.send("Added New Record");
+    });
 });
 
-//Update Bookmark identified by Name
+//Update User identified by Name
 app.put('/update', function(req, res) {
-  return Bookmark.findById(req.body.id, function (error, bookmark) {
-  	req.body.name ? bookmark.name = req.body.name : bookmark.name = bookmark.name;
-  	req.body.uri ? bookmark.uri = req.body.uri : bookmark.uri = bookmark.uri;
-  	req.body.description ? bookmark.description = req.body.description : bookmark.description = bookmark.description;
-  	bookmark.save();
-  	res.send(bookmark);
-  });
-});	
-
-//Delete Bookmark identified by ID
-app.delete('/delete', function (req, res) {
-  return Bookmark.findById(req.body.id, function (error, bookmark) {
-    return bookmark.remove(function (error) {
-      if (error) {
-       console.log(error);
-      } else {
-        console.log("removed");
-        return res.send();
-      }
+    // Another way of communicating with collections, collection schema does not have update(). it does but also change the id
+    return User.findById(req.body.id, function(error, user) {
+        req.body.forename ? user.forename = req.body.forename : user.forename = user.forename;
+        req.body.surname ? user.surname = req.body.surname : user.surname = user.surname;
+        req.body.email ? user.email = req.body.email : user.email = user.email;
+        user.save();
+        res.send(user);
     });
-  });
+});
+
+//Delete User identified by ID
+app.delete('/delete', function(req, res) {
+    return User.findById(req.body.id, function(error, user) {
+        // The collection schema has also remove()
+        return user.remove(function(error) {
+            error ? console.log(error) : res.send("delete one");
+        });
+    });
 });
 
 
