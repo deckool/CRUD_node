@@ -3,4 +3,9 @@
   email: 'email2@email.com',
   surname: 'y',
   forename: 'h',
-  _id: 56d6bc69e848d71008592157 }
+  _id: 56d6bc69e848d71008592157 },{ created: Wed Mar 02 2016 13:39:19 GMT+0200 (EET),
+  __v: 0,
+  email: 'email@email.com',
+  surname: 'surname',
+  forename: 'forename',
+  _id: 56d6d0e7d5ad52b50d172420 }

@@ -4,6 +4,9 @@ var app = express();
 var swagger = require('swagger-express');
 var path = require('path');
 
+var events = require('events');
+var eventEmitter = new events.EventEmitter();
+
 /*bodyParser Parses the contents of the request body. */
 app.use(express.bodyParser());
 /* methodOverride: works with bodyParser and provides DELETE and PUT methods along with POST. 
@@ -56,22 +59,28 @@ var User = new Schema({
 
 var User = mongoose.model('User', User);
 
-/*Local persistence*/
-if (typeof localStorage === "undefined" || localStorage === null) {
-  var LocalStorage = require('node-localstorage').LocalStorage;
-  localStorage = new LocalStorage('./scratch');
-}
+//Stream data
+app.get('/stream', function(req, res) {
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+    });
+    var countReloads = 0;
+    var getUsers = function() {
+    	countReloads++;
+    	User.find({}, function(error, data) {
+        	res.write("data: " + JSON.stringify(data) + '\n\n') && console.log(countReloads);
+    })};
+    eventEmitter.on('reload', getUsers);
+    getUsers();
+});
 
 /* RESTful API */
 
 //Get All
 app.get('/', function(req, res) {
-    User.find({}, function(error, data) {
-        localStorage.getItem("users") === null ? localStorage.setItem('users', data) : localItems = localStorage.getItem('users');
-        console.log(data);
-        console.log(localItems);
-        localItems ? res.send(localItems) : res.json(data);
-    });
+    res.sendfile('index.html');
 });
 
 //Get by ID
@@ -85,19 +94,15 @@ app.get('/:id', function(req, res) {
 
 //Create New
 app.post('/new', function(req, res) {
-	console.log(req.body);
     var user_data = {
         forename: req.body.forename,
         surname: req.body.surname,
         email: req.body.email
     };
-    res.send(user_data);
-
     var user = new User(user_data);
     // The collection schema has save()
-    console.log(user);
     user.save(function(error, data) {
-        error ? res.json(error) : res.send(data);
+        error ? res.json(error) : res.send(data) && eventEmitter.emit('reload');
     });
 });
 
@@ -108,8 +113,7 @@ app.put('/update', function(req, res) {
         req.body.forename ? user.forename = req.body.forename : user.forename = user.forename;
         req.body.surname ? user.surname = req.body.surname : user.surname = user.surname;
         req.body.email ? user.email = req.body.email : user.email = user.email;
-        user.save();
-        res.send(user);
+        user.save() && res.send(user) && eventEmitter.emit('reload');
     });
 });
 
@@ -118,7 +122,7 @@ app.delete('/delete', function(req, res) {
     return User.findById(req.body.id, function(error, user) {
         // The collection schema has also remove()
         return user.remove(function(error) {
-            error ? console.log(error) : res.send("delete one");
+            error ? console.log(error) : res.send("delete one") && eventEmitter.emit('reload');
         });
     });
 });

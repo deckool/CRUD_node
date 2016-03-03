@@ -1,0 +1,25 @@
+<html>
+	<body>
+
+	<div id="card">
+	</div>
+
+	</body>
+	<script type="text/javascript">
+		var source = new EventSource('/stream');
+		source.onmessage = function(event) {
+			localStorage ? localStorage.setItem('users', event.data) : console.log('your browser does not support local storage');
+			var data = JSON.parse(event.data);
+			console.log(data.length);
+			for (var i = 0, len = data.length; i < len; i++) {
+				console.log(data[i]._id);
+				var h2 = document.createElement('h2');
+				h2.innerHTML = data[i]._id;
+				var node = document.getElementById('card');
+				node.appendChild(h2);	
+			}
+			//document.body.appendChild(textnode);
+			console.log(JSON.parse(event.data));
+		};
+	</script>
+</html>
