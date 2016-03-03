@@ -5,7 +5,6 @@
   "private": true,
   "dependencies": {
     "mongoose": "*",
-    "swagger-express":"*",
-    "node-localstorage":"*"
+    "swagger-express":"*"
   }
 }
