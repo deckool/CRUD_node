@@ -6,6 +6,8 @@ var path = require('path');
 
 var events = require('events');
 var eventEmitter = new events.EventEmitter();
+// Set to infinity for no memoty leaks warnings
+eventEmitter.setMaxListeners(Infinity);
 
 /*bodyParser Parses the contents of the request body. */
 app.use(express.bodyParser());
@@ -68,10 +70,15 @@ app.get('/stream', function(req, res) {
     });
     var countReloads = 0;
     var getUsers = function() {
-    	countReloads++;
-    	User.find({}, function(error, data) {
-        	res.write("data: " + JSON.stringify(data) + '\n\n') && console.log(countReloads);
-    })};
+        countReloads++;
+        User.find({}, function(error, data) {
+
+            res.write("retry: 10000\n");
+            res.write("event: getAll\n");
+            res.write("data: " + JSON.stringify(data) + "\n\n");
+
+        })
+    };
     eventEmitter.on('reload', getUsers);
     getUsers();
 });

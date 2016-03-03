@@ -7,19 +7,18 @@
 	</body>
 	<script type="text/javascript">
 		var source = new EventSource('/stream');
-		source.onmessage = function(event) {
+		source.addEventListener('getAll', function(e) {
 			localStorage ? localStorage.setItem('users', event.data) : console.log('your browser does not support local storage');
-			var data = JSON.parse(event.data);
-			console.log(data.length);
-			for (var i = 0, len = data.length; i < len; i++) {
-				console.log(data[i]._id);
+			var data = JSON.parse(e.data);
+			var div = document.createElement('div');
+			for (var i = 0, len = data.length; i < len; i++) { 
 				var h2 = document.createElement('h2');
 				h2.innerHTML = data[i]._id;
-				var node = document.getElementById('card');
-				node.appendChild(h2);	
+				div.appendChild(h2);	
 			}
-			//document.body.appendChild(textnode);
-			console.log(JSON.parse(event.data));
-		};
+			var node = document.getElementById('card');
+			node.innerHTML = '';
+			node.appendChild(div);
+		}, false);
 	</script>
 </html>
