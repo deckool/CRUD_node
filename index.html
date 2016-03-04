@@ -11,10 +11,14 @@
 			localStorage ? localStorage.setItem('users', event.data) : console.log('your browser does not support local storage');
 			var data = JSON.parse(e.data);
 			var div = document.createElement('div');
-			for (var i = 0, len = data.length; i < len; i++) { 
-				var h2 = document.createElement('h2');
-				h2.innerHTML = data[i]._id;
-				div.appendChild(h2);	
+			for (var i = 0, len = data.length; i < len; i++) {
+				var btn = document.createElement("button");
+				var t = document.createTextNode("delete");
+				btn.appendChild(t);  
+				var h2 = document.createElement('h3');
+				h2.innerHTML = data[i].forename;
+				div.appendChild(h2);
+				div.appendChild(btn);	
 			}
 			var node = document.getElementById('card');
 			node.innerHTML = '';

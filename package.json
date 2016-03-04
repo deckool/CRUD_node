@@ -5,6 +5,8 @@
   "private": true,
   "dependencies": {
     "mongoose": "*",
-    "swagger-express":"*"
+    "swagger-express":"*",
+    "express":"*",
+    "body-parser":"*"
   }
 }
