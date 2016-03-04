@@ -2,6 +2,7 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
+var methodOverride = require('method-override');
 var swagger = require('swagger-express');
 var path = require('path');
 
@@ -18,14 +19,11 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-// parse multipart/form-data
-app.use(multer());
-
 /* methodOverride: works with bodyParser and provides DELETE and PUT methods along with POST. 
 You can use app.put() and app.delete() rather than detecting the user’s intention from app.post(). 
 This enables proper RESTful application design. 
 However the form/request will require a hidden input _method that can be put or delete*/
-app.use(express.methodOverride());
+app.use(methodOverride());
 app.use(swagger.init(app, {
     apiVersion: '1.0',
     swaggerVersion: '1.0',
