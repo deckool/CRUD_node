@@ -95,7 +95,7 @@ app.get('/stream', function(req, res) {
 
 //Get All
 app.get('/', function(req, res) {
-    res.sendFile('index.html');
+    res.sendFile('index.html', { root: __dirname });
 });
 
 //Get by ID
