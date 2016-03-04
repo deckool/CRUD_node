@@ -33,7 +33,7 @@ app.use(swagger.init(app, {
     swaggerUI: './public/swagger/',
     apis: ['./api.js', './api.yml']
 }));
-app.use(app.router);
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 /* Database */
@@ -95,7 +95,7 @@ app.get('/stream', function(req, res) {
 
 //Get All
 app.get('/', function(req, res) {
-    res.sendfile('index.html');
+    res.sendFile('index.html');
 });
 
 //Get by ID
@@ -143,5 +143,5 @@ app.delete('/delete', function(req, res) {
 });
 
 
-app.listen(3000);
-console.log("Server running at localhost:3000");
+app.listen(8000);
+console.log("Server running at localhost:8000");
