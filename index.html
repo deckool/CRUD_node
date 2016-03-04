@@ -15,9 +15,12 @@
 				var btn = document.createElement("button");
 				var t = document.createTextNode("delete");
 				btn.appendChild(t);  
-				var h2 = document.createElement('h3');
-				h2.innerHTML = data[i].forename;
-				div.appendChild(h2);
+				var h3 = document.createElement('h3');
+				var h4 = document.createElement('h4');
+				h3.innerHTML = data[i].forename;
+				h4.innerHTML = data[i]._id;
+				div.appendChild(h3);
+				div.appendChild(h4);
 				div.appendChild(btn);	
 			}
 			var node = document.getElementById('card');
