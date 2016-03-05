@@ -2,66 +2,96 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
 	<body>
 
-	<div id="card">
-	</div>
-
 	</body>
 	<script type="text/javascript">
-		// Create SocketIO instance, connect
-		var socket = io.connect();
-
-		// Add a connect listener
-		socket.on('connect',function() {
-			console.log('Client has connected to the server!');
-		});
-		
 		var source = new EventSource('/stream');
 		source.addEventListener('getAll', function(e) {
 			localStorage ? localStorage.setItem('users', event.data) : console.log('your browser does not support local storage');
 
-		var f = document.createElement("form");
-		f.setAttribute('method',"post");
-		f.setAttribute('action',"/new");
+			var f = document.createElement("div");
 
-		var forename = document.createElement("input"); //input element, text
-		forename.setAttribute('type',"text");
-		forename.setAttribute('name',"forename");
+			var forename = document.createElement("input"); //input element, text
+			forename.setAttribute('id', "forename");
+			forename.setAttribute('type',"text");
+			forename.setAttribute('name',"forename");
 
-		var surname = document.createElement("input"); //input element, text
-		surname.setAttribute('type',"text");
-		surname.setAttribute('name',"surname");
+			var surname = document.createElement("input");
+			surname.setAttribute('id', 'surname'); //input element, text
+			surname.setAttribute('type',"text");
+			surname.setAttribute('name',"surname");
 
-		var email = document.createElement("input"); //input element, text
-		email.setAttribute('type',"email");
-		email.setAttribute('name',"email");
+			var email = document.createElement("input");
+			email.setAttribute('id', 'email'); //input element, text
+			email.setAttribute('type',"email");
+			email.setAttribute('name',"email");
 
-		var s = document.createElement("input"); //input element, Submit button
-		s.setAttribute('type',"submit");
-		s.setAttribute('value',"Submit");
+			var s = document.createElement("button"); //input element, Submit button
+			s.setAttribute('id', "theSubmit");
+			s.setAttribute('type',"button");
+			s.setAttribute('value',"Submit");
 
-		f.appendChild(forename);
-		f.appendChild(surname);
-		f.appendChild(email);
-		f.appendChild(s);
+			f.appendChild(forename);
+			f.appendChild(surname);
+			f.appendChild(email);
+			f.appendChild(s);
 
-		var data = JSON.parse(e.data);
-		var div = document.createElement('div');
-		for (var i = 0, len = data.length; i < len; i++) {
-			var btn = document.createElement("button");
-			var t = document.createTextNode("delete");
-			btn.appendChild(t);  
-			var h3 = document.createElement('h3');
-			var h4 = document.createElement('h4');
-			h3.innerHTML = data[i].forename;
-			h4.innerHTML = data[i]._id;
-			div.appendChild(h3);
-			div.appendChild(h4);
-			div.appendChild(btn);	
-		}
-		document.body.insertBefore(f, document.body.firstChild);
-		var node = document.getElementById('card');
-		node.innerHTML = '';
-		node.appendChild(div);
+			var data = JSON.parse(e.data);
+			var div = document.createElement('div');
+			for (var i = 0, len = data.length; i < len; i++) {
+				var btn = document.createElement("button");
+				var t = document.createTextNode("delete");
+				btn.appendChild(t);  
+				var h3 = document.createElement('h3');
+				var h4 = document.createElement('h4');
+				h3.innerHTML = data[i].forename;
+				h4.innerHTML = data[i]._id;
+				div.appendChild(h3);
+				div.appendChild(h4);
+				div.appendChild(btn);	
+			}
+			document.body.innerHTML = '	<div id="card"></div>';
+			document.body.insertBefore(f, document.body.firstChild);
+			var node = document.getElementById('card');
+			node.innerHTML = '';
+			node.appendChild(div);
+
+		// Websockets
+			// Create SocketIO instance, connect
+			var socket = io.connect();
+
+// Add a connect listener
+socket.on('connect',function() {
+	console.log('Client has connected to the server!');
+	socket.send('mumu');
+});
+// Add a connect listener
+socket.on('message',function(data) {
+	console.log('Received a message from the server!',data);
+});
+// Add a disconnect listener
+socket.on('disconnect',function() {
+	console.log('The client has disconnected!');
+});
+
+// Sends a message to the server via sockets
+function sendMessageToServer(message) {
+	socket.send(message);
+	console.log(message);
+}
+
+			var formCheck = document.getElementById("theSubmit");
+			console.log(document.body);
+			console.log(formCheck);
+
+var array_of_inputs = ["forename", "surname", "email"];
+var received_values = [];
+document.getElementById("theSubmit").onclick = function () { 
+	for (var i = array_of_inputs.length - 1; i >= 0; i--) {
+		var value = document.getElementById(array_of_inputs[i]).value;
+		received_values.push(value);
+	};
+	received_values.length === array_of_inputs.length ? sendMessageToServer(received_values) : sendMessageToServer(false);
+};
 	}, false);
 	</script>
 </html>

@@ -109,10 +109,17 @@ app.get('/', function(req, res) {
 var handleClient = function(socket) {
     // we've got a client connection
     console.log('enter handleClient');
-    socket.emit("tweet", {
+    socket.send("tweet", {
         user: "nodesource",
         text: "Hello, world!"
     });
+	// Success!  Now listen to messages to be received
+	socket.on('message',function(event){ 
+		console.log('Received message from client!',event);
+	});
+	socket.on('disconnect',function(){
+		console.log('Server has disconnected');
+	});
 };
 
 io.on("connection", handleClient);
