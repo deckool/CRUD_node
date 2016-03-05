@@ -6,8 +6,9 @@
   "dependencies": {
     "mongoose": "*",
     "swagger-express":"*",
-    "express":"*",
+    "express":"4.x",
     "body-parser":"*",
-    "method-override":"*"
+    "method-override":"*",
+    "socket.io":"*"
   }
 }

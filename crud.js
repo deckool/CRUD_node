@@ -1,10 +1,14 @@
 //Import Express Framework. Install: npm install express
-var express = require('express');
-var app = express();
+var express = require('express'),
+    app = express(),
+    http = require('http'),
+    server = http.createServer(app),
+    io = require('socket.io').listen(server);
 var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
-var swagger = require('swagger-express');
 var path = require('path');
+
+var swagger = require('swagger-express');
 
 var events = require('events');
 var eventEmitter = new events.EventEmitter();
@@ -79,7 +83,9 @@ app.get('/stream', function(req, res) {
     var countReloads = 0;
     var getUsers = function() {
         countReloads++;
-        User.find({}, function(error, data) {
+        User.find({}, null, {
+            sort: '-created'
+        }, function(error, data) {
 
             res.write("retry: 10000\n");
             res.write("event: getAll\n");
@@ -95,8 +101,21 @@ app.get('/stream', function(req, res) {
 
 //Get All
 app.get('/', function(req, res) {
-    res.sendFile('index.html', { root: __dirname });
+    res.sendFile('index.html', {
+        root: __dirname
+    });
 });
+
+var handleClient = function(socket) {
+    // we've got a client connection
+    console.log('enter handleClient');
+    socket.emit("tweet", {
+        user: "nodesource",
+        text: "Hello, world!"
+    });
+};
+
+io.on("connection", handleClient);
 
 //Get by ID
 app.get('/:id', function(req, res) {
@@ -143,5 +162,5 @@ app.delete('/delete', function(req, res) {
 });
 
 
-app.listen(8000);
+server.listen(8000);
 console.log("Server running at localhost:8000");

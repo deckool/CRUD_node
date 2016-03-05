@@ -1,4 +1,5 @@
 <html>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
 	<body>
 
 	<div id="card">
@@ -6,26 +7,61 @@
 
 	</body>
 	<script type="text/javascript">
+		// Create SocketIO instance, connect
+		var socket = io.connect();
+
+		// Add a connect listener
+		socket.on('connect',function() {
+			console.log('Client has connected to the server!');
+		});
+		
 		var source = new EventSource('/stream');
 		source.addEventListener('getAll', function(e) {
 			localStorage ? localStorage.setItem('users', event.data) : console.log('your browser does not support local storage');
-			var data = JSON.parse(e.data);
-			var div = document.createElement('div');
-			for (var i = 0, len = data.length; i < len; i++) {
-				var btn = document.createElement("button");
-				var t = document.createTextNode("delete");
-				btn.appendChild(t);  
-				var h3 = document.createElement('h3');
-				var h4 = document.createElement('h4');
-				h3.innerHTML = data[i].forename;
-				h4.innerHTML = data[i]._id;
-				div.appendChild(h3);
-				div.appendChild(h4);
-				div.appendChild(btn);	
-			}
-			var node = document.getElementById('card');
-			node.innerHTML = '';
-			node.appendChild(div);
-		}, false);
+
+		var f = document.createElement("form");
+		f.setAttribute('method',"post");
+		f.setAttribute('action',"/new");
+
+		var forename = document.createElement("input"); //input element, text
+		forename.setAttribute('type',"text");
+		forename.setAttribute('name',"forename");
+
+		var surname = document.createElement("input"); //input element, text
+		surname.setAttribute('type',"text");
+		surname.setAttribute('name',"surname");
+
+		var email = document.createElement("input"); //input element, text
+		email.setAttribute('type',"email");
+		email.setAttribute('name',"email");
+
+		var s = document.createElement("input"); //input element, Submit button
+		s.setAttribute('type',"submit");
+		s.setAttribute('value',"Submit");
+
+		f.appendChild(forename);
+		f.appendChild(surname);
+		f.appendChild(email);
+		f.appendChild(s);
+
+		var data = JSON.parse(e.data);
+		var div = document.createElement('div');
+		for (var i = 0, len = data.length; i < len; i++) {
+			var btn = document.createElement("button");
+			var t = document.createTextNode("delete");
+			btn.appendChild(t);  
+			var h3 = document.createElement('h3');
+			var h4 = document.createElement('h4');
+			h3.innerHTML = data[i].forename;
+			h4.innerHTML = data[i]._id;
+			div.appendChild(h3);
+			div.appendChild(h4);
+			div.appendChild(btn);	
+		}
+		document.body.insertBefore(f, document.body.firstChild);
+		var node = document.getElementById('card');
+		node.innerHTML = '';
+		node.appendChild(div);
+	}, false);
 	</script>
 </html>
