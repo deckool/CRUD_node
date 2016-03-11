@@ -106,16 +106,36 @@ app.get('/', function(req, res) {
     });
 });
 
+function saveUser(user_data, socket){
+	var user = new User(user_data);
+	// The collection schema has save()
+	user.save(function(error, data) {
+	    if (error){
+	    	socket.send(error)	
+	    } else {
+	    	socket.send(data) ;
+	    	//eventEmitter.emit('reload');
+	    }
+	});	
+}
+
 var handleClient = function(socket) {
     // we've got a client connection
     console.log('enter handleClient');
-    socket.send("tweet", {
-        user: "nodesource",
-        text: "Hello, world!"
-    });
+    var needed = {};
+    var config = [{"input" : {"id" : "forename", "type" : "text", "name":"forename"}},
+    			  {"input" : {"id" : "surname", "type" : "text", "name":"surname"}},
+    			  {"input" : {"id" : "email", "type" : "email", "name":"email"}}
+    			 ];
+
+
+    needed.config = config;
+    socket.send(needed);
+    //console.log(socket);
 	// Success!  Now listen to messages to be received
 	socket.on('message',function(event){ 
-		console.log('Received message from client!',event);
+		console.log('Received message from client!', event);
+	//	event.get ? saveUser(event.get, socket) : console.log(event);
 	});
 	socket.on('disconnect',function(){
 		console.log('Server has disconnected');
